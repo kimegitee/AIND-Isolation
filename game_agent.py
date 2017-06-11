@@ -212,8 +212,33 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # DONE: finish this function!
+
+        _, move = max((self.min_value(game.forecast_move(move), depth-1), move) for move in game.get_legal_moves())
+
+        return move
+
+    def max_value(self, game, depth):
+        """Evaluate the utility of a max node."""
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0 or not game.get_legal_moves():
+            return self.score(game, game.active_player)
+
+        return max(self.min_value(game.forecast_move(move), depth-1) for move in game.get_legal_moves())
+
+
+    def min_value(self, game, depth):
+        """Evaluate the utility of a min node."""
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0 or not game.get_legal_moves():
+            return self.score(game, game.inactive_player)
+
+        return min(self.max_value(game.forecast_move(move), depth-1) for move in game.get_legal_moves())
+
 
 
 class AlphaBetaPlayer(IsolationPlayer):
