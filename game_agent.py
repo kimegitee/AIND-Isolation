@@ -330,5 +330,52 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # DONE: finish this function!
+        value = float("-inf")
+        best_move = (-1, -1)
+
+        for move in game.get_legal_moves(): #do the first branching here to avoid keeping track of the best move inside max_value()
+            min_value = self.min_value(game.forecast_move(move), depth-1, alpha, beta)
+            if min_value > value:
+                value, best_move = min_value, move
+            alpha = max(value, alpha)
+
+        return best_move
+
+    def max_value(self, game, depth, alpha, beta):
+        """Evaluate the utility of a maximizing node with alpha-beta pruning"""
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0 or not game.get_legal_moves():
+            return self.score(game, game.active_player)
+
+        value = float("-inf")
+
+        for move in game.get_legal_moves():
+            min_value = self.min_value(game.forecast_move(move), depth-1, alpha, beta)
+            value = max(value, min_value)
+            if value >= beta: #values exceeding beta cannot bubble through the minimizing layer above, so return early
+                return value
+            alpha = max(value, alpha) #inform subsequent minimizing nodes of newfound lower bound
+
+        return value
+
+    def min_value(self, game, depth, alpha, beta):
+        """Evaluate the utility of a minimizing node with alpha-beta pruning"""
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0 or not game.get_legal_moves():
+            return self.score(game, game.inactive_player)
+
+        value = float("inf")
+
+        for move in game.get_legal_moves():
+            max_value = self.max_value(game.forecast_move(move), depth-1, alpha, beta)
+            value = min(value, max_value)
+            if value <= alpha: #values below alpha is stopped at above maximizing layer, so return early
+                return value
+            beta = min(value, beta) #inform subsequent maximizing nodes of newfound upper bound
+
+        return value
