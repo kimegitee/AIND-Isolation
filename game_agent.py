@@ -213,6 +213,8 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         # DONE: finish this function!
+        if not game.get_legal_moves():
+            return (-1, -1)
 
         _, move = max((self.min_value(game.forecast_move(move), depth-1), move) for move in game.get_legal_moves())
 
